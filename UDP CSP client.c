@@ -30,6 +30,9 @@ int main(int argc, char**argv)
 	servaddr.sin_port = htons(32000);
 
 	sendto(sockfd, N, strlen(N), 0, (struct sockaddr*) &servaddr, sizeof(servaddr));
+	n = recvfrom(sockfd, recvline, 10000, 0, NULL, NULL);
+	recvline[n] = 0;
+	printf("Received: %s\n",recvline);
 
 	N = atoi(argv[2]);
 
@@ -40,7 +43,6 @@ int main(int argc, char**argv)
 		scanf("%s", str);
 
 		sendto(sockfd, str, strlen(sendline), 0, (struct sockaddr*) &servaddr, sizeof(servaddr));
-
 		n = recvfrom(sockfd, recvline, 10000, 0, NULL, NULL);
 		recvline[n] = 0;
 		printf("Received: %s\n",recvline);
