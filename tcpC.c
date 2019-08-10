@@ -8,9 +8,9 @@
 #define SIZE 1000
 
 int main(int argc, char**argv) {
-    FILE *downFile;
+    FILE *downloadFile;
     struct sockaddr_in servaddr;
-    char downFileName[255];
+    char downloadFileName[255];
     char buffer[SIZE];
     int sockfd, n, serves, i;
 
@@ -41,9 +41,9 @@ int main(int argc, char**argv) {
     printf("getting %s as %d serves.\n", argv[2], serves);
 
     /* open file to append */
-    sprintf(downFileName, "_%s", argv[2]);
-    downFile = fopen(downFileName, "a");
-    if (downFile == NULL) {
+    sprintf(downloadFileName, "_%s", argv[2]);
+    downloadFile = fopen(downloadFileName, "a");
+    if (downloadFile == NULL) {
         printf("error opening file.\n");
     }
     /* download as parts */
@@ -51,12 +51,12 @@ int main(int argc, char**argv) {
         //printf("getting part %d\n", i);
         n = recvfrom(sockfd, buffer, SIZE, 0, NULL, NULL);
         buffer[n] = 0;
-        fprintf(downFile, "%s", buffer);
+        fprintf(downloadFile, "%s", buffer);
         //printf("received: %s\n", buffer);
     }
     /* finish downloading */
-    fclose(downFile);
-    printf("%s file successfully downloaded. :) \n", argv[2]);
+    fclose(downloadFile);
+    printf("%s file downloaded successfully.\n", argv[2]);
 
     return 0;
 }
