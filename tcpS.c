@@ -6,13 +6,13 @@
 #include <stdlib.h>
 
 /* no. of bytes per part */
-#define SIZE 1000
+#define FILE_SIZE 1000
 
 int main(int argc, char**argv) {
-    FILE *reqFile;
+    FILE *requestFile;
     struct sockaddr_in servaddr, cliaddr;
     socklen_t clilen;
-    char buffer[SIZE];
+    char buffer[FILE_SIZE];
     int listenfd, connfd, n, index = 1, i = 0, chr;
 
     /* one socket is dedicated to listening */
@@ -35,46 +35,46 @@ int main(int argc, char**argv) {
     connfd = accept(listenfd, (struct sockaddr *) &cliaddr, &clilen); // the uninitialized cliaddr variable is filled in with the
 
     /* getting client request */
-    n = recvfrom(connfd, buffer, SIZE, 0, (struct sockaddr *) &cliaddr, &clilen); // information of the client by recvfrom function
+    n = recvfrom(connfd, buffer, FILE_SIZE, 0, (struct sockaddr *) &cliaddr, &clilen); // information of the client by recvfrom function
     buffer[n] = 0;
     printf("requested:%s\n", buffer);
 
     /* open requested file */
-    reqFile = fopen(buffer, "r");
-    if (reqFile == NULL) {
+    requestFile = fopen(buffer, "r");
+    if (requestFile == NULL) {
         char* errorMsg = "error opening file.\n";
         printf("%s", errorMsg);
         // sendto(connfd, errorMsg, strlen(errorMsg), 0, (struct sockaddr *) &cliaddr, sizeof (cliaddr));
     }
 
     /* find file length */
-    fseek(reqFile, 0, 2);
-    long int size = ftell(reqFile);
+    fseek(requestFile, 0, 2);
+    long int size = ftell(requestFile);
     printf("%s size: %ld\n", buffer, size);
 
     /* calculate no. of serves and send it to client */
-    int serves = (size / SIZE) + 1;
+    int serves = (size / FILE_SIZE) + 1;
     printf("serves: %d\n", serves);
     sprintf(buffer, "%d\n", serves);
     sendto(connfd, buffer, sizeof (int), 0, (struct sockaddr *) &cliaddr, sizeof (cliaddr));
 
-    rewind(reqFile);
+    rewind(requestFile);
 
     /* sending file to client */
     while (1) {
-        chr = fgetc(reqFile);
+        chr = fgetc(requestFile);
         buffer[i++] = chr;
         if (chr == EOF) { // end of file
             buffer[--i] = 0;
             sendto(connfd, buffer, strlen(buffer), 0, (struct sockaddr *) &cliaddr, sizeof (cliaddr));
             break;
         }
-        if (ftell(reqFile) == (index * SIZE)) { // send by part
+        if (ftell(requestFile) == (index * FILE_SIZE)) { // send by part
             sendto(connfd, buffer, strlen(buffer), 0, (struct sockaddr *) &cliaddr, sizeof (cliaddr));
             i = 0;
         }
     }
-    fclose(reqFile);
+    fclose(requestFile);
 
     return 0;
 }
