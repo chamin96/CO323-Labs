@@ -64,14 +64,12 @@ int main(int argc, char**argv) {
     while (1) {
         chr = fgetc(reqFile);
         buffer[i++] = chr;
-        if (chr == EOF) { // last part of file
+        if (chr == EOF) { // end of file
             buffer[--i] = 0;
-            //printf("sending: %s\n", buffer);
             sendto(connfd, buffer, strlen(buffer), 0, (struct sockaddr *) &cliaddr, sizeof (cliaddr));
             break;
         }
         if (ftell(reqFile) == (index * SIZE)) { // send by part
-            //printf("sending: %s\n", buffer);
             sendto(connfd, buffer, strlen(buffer), 0, (struct sockaddr *) &cliaddr, sizeof (cliaddr));
             i = 0;
         }
